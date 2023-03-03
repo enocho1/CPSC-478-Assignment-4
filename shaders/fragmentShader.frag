@@ -380,6 +380,17 @@ vec3 calculateSpecialDiffuseColor(
   // ----------- STUDENT CODE BEGIN ------------
   if(mat.special == CHECKERBOARD) {
     // ----------- Our reference solution uses 7 lines of code.
+    float x = floor(posIntersection.x * 0.20 + EPS);
+    float y = floor(posIntersection.y * 0.20 + EPS);
+    float z = floor(posIntersection.z * 0.20 + EPS);
+    float s = x + y + z;
+    float m = mod(s, 2.0);
+    if(m < EPS) {
+      mat.color = vec3(0, 0, 0);
+    } else {
+      mat.color = vec3(1, 1, 1);
+    }
+
   } else if(mat.special == MYSPECIAL) {
     // ----------- Our reference solution uses 5 lines of code.
   }
