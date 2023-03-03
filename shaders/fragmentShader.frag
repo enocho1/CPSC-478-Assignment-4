@@ -150,6 +150,20 @@ float findIntersectionWithPlane(
   return len;
 }
 
+bool inTriSide(
+  vec3 t1,
+  vec3 t2,
+  vec3 p,
+  vec3 p0
+) {
+  vec3 v1 = t1 - p;
+  vec3 v2 = t2 - p;
+  vec3 n1 = cross(v2, v1);
+  vec3 v = p - p0;
+
+  return dot(v, n1) > 0.0;
+}
+
 // Triangle
 float findIntersectionWithTriangle(
   Ray ray,
@@ -160,6 +174,31 @@ float findIntersectionWithTriangle(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 28 lines of code.
+  //get normal + distance and treat like a plane @enoch
+  // vec3 edge1 = t2-t1;
+  // vec3 edge2 = t3-t1;
+  // vec3 pVec = cross(ray.direction, edge2);
+  // float det = dot(pVec, edge1);
+  // if(det<EPS){
+  //   return INFINITY;
+  // }
+
+  vec3 normal = normalize(cross(t2 - t1, t3 - t1));
+
+  vec3 triangleCenter = t1 + t2 + t3;
+  triangleCenter /= 3.0;
+  float distance = dot(t1, normal);
+  Intersection initialIntersection;
+  float d = findIntersectionWithPlane(ray, normal, distance, initialIntersection);
+  if(d < INFINITY) {
+//check within triangle
+    if((inTriSide(t1, t2, intersect.position, ray.origin)) && (inTriSide(t2, t3, intersect.position, ray.origin)) && (inTriSide(t3, t1, intersect.position, ray.origin))) {
+      intersect.normal = initialIntersection.normal;
+      intersect.position = initialIntersection.position;
+      return d;
+    }
+  }
+
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
@@ -174,6 +213,44 @@ float findIntersectionWithSphere(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 25 lines of code.
+  vec3 V = ray.direction;
+  vec3 PminusO = ray.origin - center;
+  float a = dot(V, V);
+  float b = 2.0 * dot(V, PminusO);
+  float c = dot(PminusO, PminusO) - radius * radius;
+
+  float discrim = b * b - 4.0 * a * c;
+  // float discrim = b * b - c;
+
+  if(discrim > 0.0) {
+    float t1 = (-b + sqrt(discrim)) / (2.0 * a);
+    float t2 = (-b - sqrt(discrim)) / (2.0 * a);
+    float T = min(t1, t2);
+    if(T <= EPS) {
+      return INFINITY;
+    }
+
+    vec3 P = ray.origin + T * V;
+    intersect.position = P;
+    intersect.normal = normalize(P - center);
+    return length(P - center);
+
+  } else if(discrim == 0.0) {
+    vec3 P = ray.origin + (-b / (2.0 * a)) * V;
+    intersect.position = P;
+    intersect.normal = normalize(P - center);
+    return length(P - center);
+  } else {
+    return INFINITY;
+  }
+
+  // if(discrim<=EPS){
+  //   return INFINITY;
+  // }
+  // else{
+
+  // }
+
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
@@ -330,7 +407,15 @@ vec3 calculateDiffuseColor(
 bool pointInShadow(vec3 pos, vec3 lightVec) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 15 lines of code.
-  return false;
+  Ray r;
+  r.origin = pos + lightVec;
+  r.direction = normalize(-lightVec);
+  float len = length(lightVec);
+  Material m;
+  Intersection i;
+  float P = rayIntersectScene(r, m, i);
+  return (abs(P - len) >= EPS);
+  // return false;
   // ----------- STUDENT CODE END ------------
 }
 
@@ -424,12 +509,20 @@ vec3 calculateColor(
   // to the point of intersection in the scene.
   // ----------- STUDENT CODE BEGIN ------------
   //@enoch
-  for(int i = 0;i<MAX_LIGHTS;i++){
-    if(i>=numLights){
+  // for(int i = 0; i < MAX_LIGHTS; i++) {
+  //   if(i >= numLights) {
+  //     break;
+  //   }
+  //   vec3 lightContrib = getLightContribution(lights[i], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
+  //   outputColor += lightContrib;
+  // }
+
+  for(int ii = 0; ii < MAX_LIGHTS; ii++) {
+    if(ii >= numLights) {
       break;
     }
-    vec3 lightContrib =  getLightContribution(lights[i], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
-    outputColor += lightContrib;
+    vec3 contrib = getLightContribution(lights[ii], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
+    outputColor += contrib;
   }
   // ----------- Our reference solution uses 9 lines of code.
   // Return diffuseColor by default, so you can see something for now.
@@ -555,7 +648,7 @@ vec3 traceRay(Ray ray) {
     nextBounceDir = normalize(nextBounceDir);
     ray.origin = posIntersection;
     ray.direction = nextBounceDir;
-    resColor += resWeight*outputColor;
+    resColor += resWeight * outputColor;
     resWeight *= hitMaterial.reflectivity;
     // ----------- STUDENT CODE END ------------
   }
