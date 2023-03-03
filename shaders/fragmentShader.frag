@@ -101,10 +101,13 @@ vec3 rayGetOffset(Ray ray, float dist) {
 // if a newly found intersection is closer than the best found so far, record
 // the new intersection and return true; otherwise leave the best as it was and
 // return false.
-bool chooseCloserIntersection(float dist, inout float best_dist,
-                              inout Intersection intersect,
-                              inout Intersection best_intersect) {
-  if (best_dist <= dist)
+bool chooseCloserIntersection(
+  float dist,
+  inout float best_dist,
+  inout Intersection intersect,
+  inout Intersection best_intersect
+) {
+  if(best_dist <= dist)
     return false;
   best_dist = dist;
   best_intersect.position = intersect.position;
@@ -118,21 +121,28 @@ bool chooseCloserIntersection(float dist, inout float best_dist,
 // ----------- STUDENT CODE END ------------
 
 // forward declaration
-float rayIntersectScene(Ray ray, out Material out_mat,
-                        out Intersection out_intersect);
+float rayIntersectScene(
+  Ray ray,
+  out Material out_mat,
+  out Intersection out_intersect
+);
 
 // Plane
 // this function can be used for plane, triangle, and box
-float findIntersectionWithPlane(Ray ray, vec3 norm, float dist,
-                                out Intersection intersect) {
+float findIntersectionWithPlane(
+  Ray ray,
+  vec3 norm,
+  float dist,
+  out Intersection intersect
+) {
   float a = dot(ray.direction, norm);
   float b = dot(ray.origin, norm) - dist;
 
-  if (a < EPS && a > -EPS)
+  if(a < EPS && a > -EPS)
     return INFINITY;
 
   float len = -b / a;
-  if (len < EPS)
+  if(len < EPS)
     return INFINITY;
 
   intersect.position = rayGetOffset(ray, len);
@@ -141,8 +151,13 @@ float findIntersectionWithPlane(Ray ray, vec3 norm, float dist,
 }
 
 // Triangle
-float findIntersectionWithTriangle(Ray ray, vec3 t1, vec3 t2, vec3 t3,
-                                   out Intersection intersect) {
+float findIntersectionWithTriangle(
+  Ray ray,
+  vec3 t1,
+  vec3 t2,
+  vec3 t3,
+  out Intersection intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 28 lines of code.
   // currently reports no intersection
@@ -151,8 +166,12 @@ float findIntersectionWithTriangle(Ray ray, vec3 t1, vec3 t2, vec3 t3,
 }
 
 // Sphere
-float findIntersectionWithSphere(Ray ray, vec3 center, float radius,
-                                 out Intersection intersect) {
+float findIntersectionWithSphere(
+  Ray ray,
+  vec3 center,
+  float radius,
+  out Intersection intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 25 lines of code.
   // currently reports no intersection
@@ -161,8 +180,12 @@ float findIntersectionWithSphere(Ray ray, vec3 center, float radius,
 }
 
 // Box
-float findIntersectionWithBox(Ray ray, vec3 pmin, vec3 pmax,
-                              out Intersection out_intersect) {
+float findIntersectionWithBox(
+  Ray ray,
+  vec3 pmin,
+  vec3 pmax,
+  out Intersection out_intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // pmin and pmax represent two bounding points of the box
   // pmin stores [xmin, ymin, zmin] and pmax stores [xmax, ymax, zmax]
@@ -173,8 +196,14 @@ float findIntersectionWithBox(Ray ray, vec3 pmin, vec3 pmax,
 }
 
 // Cylinder
-float getIntersectOpenCylinder(Ray ray, vec3 center, vec3 axis, float len,
-                               float rad, out Intersection intersect) {
+float getIntersectOpenCylinder(
+  Ray ray,
+  vec3 center,
+  vec3 axis,
+  float len,
+  float rad,
+  out Intersection intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 33 lines of code.
   // currently reports no intersection
@@ -182,8 +211,13 @@ float getIntersectOpenCylinder(Ray ray, vec3 center, vec3 axis, float len,
   // ----------- STUDENT CODE END ------------
 }
 
-float getIntersectDisc(Ray ray, vec3 center, vec3 norm, float rad,
-                       out Intersection intersect) {
+float getIntersectDisc(
+  Ray ray,
+  vec3 center,
+  vec3 norm,
+  float rad,
+  out Intersection intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 18 lines of code.
   // currently reports no intersection
@@ -191,9 +225,13 @@ float getIntersectDisc(Ray ray, vec3 center, vec3 norm, float rad,
   // ----------- STUDENT CODE END ------------
 }
 
-float findIntersectionWithCylinder(Ray ray, vec3 center, vec3 apex,
-                                   float radius,
-                                   out Intersection out_intersect) {
+float findIntersectionWithCylinder(
+  Ray ray,
+  vec3 center,
+  vec3 apex,
+  float radius,
+  out Intersection out_intersect
+) {
   vec3 axis = apex - center;
   float len = length(axis);
   axis = normalize(axis);
@@ -215,8 +253,14 @@ float findIntersectionWithCylinder(Ray ray, vec3 center, vec3 apex,
 }
 
 // Cone
-float getIntersectOpenCone(Ray ray, vec3 apex, vec3 axis, float len,
-                           float radius, out Intersection intersect) {
+float getIntersectOpenCone(
+  Ray ray,
+  vec3 apex,
+  vec3 axis,
+  float len,
+  float radius,
+  out Intersection intersect
+) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 45 lines of code.
   // currently reports no intersection
@@ -224,8 +268,13 @@ float getIntersectOpenCone(Ray ray, vec3 apex, vec3 axis, float len,
   // ----------- STUDENT CODE END ------------
 }
 
-float findIntersectionWithCone(Ray ray, vec3 center, vec3 apex, float radius,
-                               out Intersection out_intersect) {
+float findIntersectionWithCone(
+  Ray ray,
+  vec3 center,
+  vec3 apex,
+  float radius,
+  out Intersection out_intersect
+) {
   vec3 axis = center - apex;
   float len = length(axis);
   axis = normalize(axis);
@@ -246,12 +295,15 @@ float findIntersectionWithCone(Ray ray, vec3 center, vec3 apex, float radius,
   return best_dist;
 }
 
-vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
-                                  vec3 normalVector) {
+vec3 calculateSpecialDiffuseColor(
+  Material mat,
+  vec3 posIntersection,
+  vec3 normalVector
+) {
   // ----------- STUDENT CODE BEGIN ------------
-  if (mat.special == CHECKERBOARD) {
+  if(mat.special == CHECKERBOARD) {
     // ----------- Our reference solution uses 7 lines of code.
-  } else if (mat.special == MYSPECIAL) {
+  } else if(mat.special == MYSPECIAL) {
     // ----------- Our reference solution uses 5 lines of code.
   }
 
@@ -260,10 +312,13 @@ vec3 calculateSpecialDiffuseColor(Material mat, vec3 posIntersection,
   // ----------- STUDENT CODE END ------------
 }
 
-vec3 calculateDiffuseColor(Material mat, vec3 posIntersection,
-                           vec3 normalVector) {
+vec3 calculateDiffuseColor(
+  Material mat,
+  vec3 posIntersection,
+  vec3 normalVector
+) {
   // Special colors
-  if (mat.special != NONE) {
+  if(mat.special != NONE) {
     return calculateSpecialDiffuseColor(mat, posIntersection, normalVector);
   }
   return vec3(mat.color);
@@ -290,51 +345,52 @@ float softShadowRatio(vec3 pos, vec3 lightVec) {
   // ----------- STUDENT CODE END ------------
 }
 
-vec3 getLightContribution(Light light, Material mat, vec3 posIntersection,
-                          vec3 normalVector, vec3 eyeVector, bool phongOnly,
-                          vec3 diffuseColor) {
+vec3 getLightContribution(
+  Light light,
+  Material mat,
+  vec3 posIntersection,
+  vec3 normalVector,
+  vec3 eyeVector,
+  bool phongOnly,
+  vec3 diffuseColor
+) {
   vec3 lightVector = light.position - posIntersection;
 
-
   float ratio = 1.0; // default to 1.0 for hard shadows
-  if (SOFT_SHADOWS == 1) {
+  if(SOFT_SHADOWS == 1) {
     // if using soft shadows, call softShadowRatio to determine
     // fractional light contribution
     ratio = softShadowRatio(posIntersection, lightVector);
-  }
-  else {
+  } else {
     // check if point is in shadow with light vector
-    if (pointInShadow(posIntersection, lightVector)) {
+    if(pointInShadow(posIntersection, lightVector)) {
       return vec3(0.0, 0.0, 0.0);
     }
   }
 
   // Slight optimization for soft shadows
-  if (ratio < EPS) {
+  if(ratio < EPS) {
     return vec3(0.0, 0.0, 0.0);
   }
-
 
   // normalize the light vector for the computations below
   float distToLight = length(lightVector);
   lightVector /= distToLight;
 
-  if (mat.materialType == PHONGMATERIAL ||
-      mat.materialType == LAMBERTMATERIAL) {
+  if(mat.materialType == PHONGMATERIAL ||
+    mat.materialType == LAMBERTMATERIAL) {
     vec3 contribution = vec3(0.0, 0.0, 0.0);
 
     // get light attenuation
     float attenuation = light.attenuate * distToLight;
-    float diffuseIntensity =
-        max(0.0, dot(normalVector, lightVector)) * light.intensity;
+    float diffuseIntensity = max(0.0, dot(normalVector, lightVector)) * light.intensity;
 
     // glass and mirror objects have specular highlights but no diffuse lighting
-    if (!phongOnly) {
-      contribution +=
-          diffuseColor * diffuseIntensity * light.color / attenuation;
+    if(!phongOnly) {
+      contribution += diffuseColor * diffuseIntensity * light.color / attenuation;
     }
 
-    if (mat.materialType == PHONGMATERIAL) {
+    if(mat.materialType == PHONGMATERIAL) {
       // Start with just black by default (i.e. no Phong term contribution)
       vec3 phongTerm = vec3(0.0, 0.0, 0.0);
       // ----------- STUDENT CODE BEGIN ------------
@@ -349,8 +405,13 @@ vec3 getLightContribution(Light light, Material mat, vec3 posIntersection,
   }
 }
 
-vec3 calculateColor(Material mat, vec3 posIntersection, vec3 normalVector,
-                    vec3 eyeVector, bool phongOnly) {
+vec3 calculateColor(
+  Material mat,
+  vec3 posIntersection,
+  vec3 normalVector,
+  vec3 eyeVector,
+  bool phongOnly
+) {
   // The diffuse color of the material at the point of intersection
   // Needed to compute the color when accounting for the lights in the scene
   vec3 diffuseColor = calculateDiffuseColor(mat, posIntersection, normalVector);
@@ -362,16 +423,29 @@ vec3 calculateColor(Material mat, vec3 posIntersection, vec3 normalVector,
   // numLights (GLSL restriction), and accumulate each light's contribution
   // to the point of intersection in the scene.
   // ----------- STUDENT CODE BEGIN ------------
+  //@enoch
+  for(int i = 0;i<MAX_LIGHTS;i++){
+    if(i>=numLights){
+      break;
+    }
+    vec3 lightContrib =  getLightContribution(lights[i], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
+    outputColor += lightContrib;
+  }
   // ----------- Our reference solution uses 9 lines of code.
   // Return diffuseColor by default, so you can see something for now.
-  return diffuseColor;
+  return outputColor;
+  // return diffuseColor;
   // ----------- STUDENT CODE END ------------
 }
 
 // find reflection or refraction direction (depending on material type)
-vec3 calcReflectionVector(Material material, vec3 direction, vec3 normalVector,
-                          bool isInsideObj) {
-  if (material.materialReflectType == MIRRORREFLECT) {
+vec3 calcReflectionVector(
+  Material material,
+  vec3 direction,
+  vec3 normalVector,
+  bool isInsideObj
+) {
+  if(material.materialReflectType == MIRRORREFLECT) {
     return reflect(direction, normalVector);
   }
   // If it's not mirror, then it is a refractive material like glass.
@@ -379,8 +453,7 @@ vec3 calcReflectionVector(Material material, vec3 direction, vec3 normalVector,
   // See lecture 13 slide (lighting) on Snell's law.
   // The eta below is eta_i/eta_r.
   // ----------- STUDENT CODE BEGIN ------------
-  float eta =
-      (isInsideObj) ? 1.0 / material.refractionRatio : material.refractionRatio;
+  float eta = (isInsideObj) ? 1.0 / material.refractionRatio : material.refractionRatio;
   // ----------- Our reference solution uses 5 lines of code.
   // Return mirror direction by default, so you can see something for now.
   return reflect(direction, normalVector);
@@ -401,7 +474,7 @@ vec3 traceRay(Ray ray) {
   bool isInsideObj = false;
 
   // Iteratively trace the ray through the scene up to MAX_RECURSION bounces.
-  for (int depth = 0; depth < MAX_RECURSION; depth++) {
+  for(int depth = 0; depth < MAX_RECURSION; depth++) {
     // Fire the ray into the scene and find an intersection, if one exists.
     //
     // To do so, trace the ray using the rayIntersectScene function, which
@@ -417,32 +490,36 @@ vec3 traceRay(Ray ray) {
     // ----------- STUDENT CODE BEGIN ------------
     Material hitMaterial;
     Intersection intersect;
+    float intersectionDistance = rayIntersectScene(ray, hitMaterial, intersect);
+    if((abs(intersectionDistance) < EPS) || (abs(intersectionDistance) >= INFINITY)) {
+      return resColor;
+    }
+
     // ----------- Our reference solution uses 4 lines of code.
     // ----------- STUDENT CODE END ------------
 
     // Compute the vector from the ray towards the intersection.
     vec3 posIntersection = intersect.position;
-    vec3 normalVector    = intersect.normal;
+    vec3 normalVector = intersect.normal;
 
     vec3 eyeVector = normalize(ray.origin - posIntersection);
 
     // Determine whether we are inside an object using the dot product
     // with the intersection's normal vector
-    if (dot(eyeVector, normalVector) < 0.0) {
-        normalVector = -normalVector;
-        isInsideObj = true;
+    if(dot(eyeVector, normalVector) < 0.0) {
+      normalVector = -normalVector;
+      isInsideObj = true;
     } else {
-        isInsideObj = false;
+      isInsideObj = false;
     }
 
     // Material is reflective if it is either mirror or glass in this assignment
     bool reflective = (hitMaterial.materialReflectType == MIRRORREFLECT ||
-                       hitMaterial.materialReflectType == GLASSREFLECT);
+      hitMaterial.materialReflectType == GLASSREFLECT);
 
     // Compute the color at the intersection point based on its material
     // and the lighting in the scene
-    vec3 outputColor = calculateColor(hitMaterial, posIntersection,
-      normalVector, eyeVector, reflective);
+    vec3 outputColor = calculateColor(hitMaterial, posIntersection, normalVector, eyeVector, reflective);
 
     // A material has a reflection type (as seen above) and a reflectivity
     // attribute. A reflectivity "equal to zero" indicates that the material
@@ -450,10 +527,15 @@ vec3 traceRay(Ray ray) {
 
     // If a material is neither reflective nor refractive...
     // (1) Scale the output color by the current weight and add it into
-    //     the accumulated color.
+    //     the accumulated color.  
     // (2) Then break the for loop (i.e. do not trace the ray any further).
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 4 lines of code.
+    if(hitMaterial.reflectivity < EPS) {
+      resColor += resWeight * outputColor; //for some reason adding newcol(scaled by resweight) to rescolour doesn't give the desired result. @enoch
+
+      break;
+    }
     // ----------- STUDENT CODE END ------------
 
     // If the material is reflective or refractive...
@@ -469,6 +551,12 @@ vec3 traceRay(Ray ray) {
     //     so that it is the appropriate weight for the next ray's color.
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 8 lines of code.
+    vec3 nextBounceDir = calcReflectionVector(hitMaterial, ray.direction, normalVector, isInsideObj);
+    nextBounceDir = normalize(nextBounceDir);
+    ray.origin = posIntersection;
+    ray.direction = nextBounceDir;
+    resColor += resWeight*outputColor;
+    resWeight *= hitMaterial.reflectivity;
     // ----------- STUDENT CODE END ------------
   }
 
@@ -477,8 +565,7 @@ vec3 traceRay(Ray ray) {
 
 void main() {
   float cameraFOV = 0.8;
-  vec3 direction = vec3(v_position.x * cameraFOV * width / height,
-                        v_position.y * cameraFOV, 1.0);
+  vec3 direction = vec3(v_position.x * cameraFOV * width / height, v_position.y * cameraFOV, 1.0);
 
   Ray ray;
   ray.origin = vec3(uMVMatrix * vec4(camera, 1.0));
