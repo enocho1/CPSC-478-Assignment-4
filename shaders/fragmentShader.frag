@@ -425,6 +425,7 @@ bool pointInShadow(vec3 pos, vec3 lightVec) {
   Material m;
   Intersection i;
   float P = rayIntersectScene(r, m, i);
+  P = length(i.position-r.origin);
   return (abs(P - len) >= EPS);
   // return false;
   // ----------- STUDENT CODE END ------------
@@ -491,6 +492,13 @@ vec3 getLightContribution(
       vec3 phongTerm = vec3(0.0, 0.0, 0.0);
       // ----------- STUDENT CODE BEGIN ------------
       // ----------- Our reference solution uses 4 lines of code.
+      vec3 reflectDir = reflect(lightVector, normalVector);
+      vec3 viewDir = normalize(eyeVector - posIntersection);
+      float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess)* light.intensity;
+      vec3 specular =  (spec * mat.specular) * light.color / attenuation;
+      phongTerm = specular;
+
+
       // ----------- STUDENT CODE END ------------
       contribution += phongTerm;
     }
@@ -559,8 +567,16 @@ vec3 calcReflectionVector(
   // ----------- STUDENT CODE BEGIN ------------
   float eta = (isInsideObj) ? 1.0 / material.refractionRatio : material.refractionRatio;
   // ----------- Our reference solution uses 5 lines of code.
+  vec3 I = direction;
+  vec3 N = normalVector;
+  float k = 1.0 - eta * eta * (1.0 - dot(N, I) * dot(N, I));
+    if (k < 0.0)
+        return vec3(0.0);
+    else
+        return eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+  // return refract(direction, normalVector, eta);
   // Return mirror direction by default, so you can see something for now.
-  return reflect(direction, normalVector);
+  // return reflect(direction, normalVector);
   // ----------- STUDENT CODE END ------------
 }
 
