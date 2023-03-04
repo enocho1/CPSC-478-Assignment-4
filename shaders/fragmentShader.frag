@@ -220,40 +220,33 @@ float findIntersectionWithSphere(
   float c = dot(PminusO, PminusO) - radius * radius;
 
   float discrim = b * b - 4.0 * a * c;
-  // float discrim = b * b - c;
 
-  if(discrim > 0.0) {
+  if(discrim <= EPS) {
+    return INFINITY;
+  } else {
     float t1 = (-b + sqrt(discrim)) / (2.0 * a);
     float t2 = (-b - sqrt(discrim)) / (2.0 * a);
     float T = min(t1, t2);
     if(T <= EPS) {
       return INFINITY;
     }
-
     vec3 P = ray.origin + T * V;
     intersect.position = P;
     intersect.normal = normalize(P - center);
     return length(P - center);
 
-  } else if(discrim == 0.0) {
-    vec3 P = ray.origin + (-b / (2.0 * a)) * V;
-    intersect.position = P;
-    intersect.normal = normalize(P - center);
-    return length(P - center);
-  } else {
-    return INFINITY;
   }
-
-  // if(discrim<=EPS){
-  //   return INFINITY;
-  // }
-  // else{
-
-  // }
 
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
+}
+
+bool inBox(vec3 p, vec3 pmin, vec3 pmax) {
+  bool a = (p.x >= pmin.x - EPS) && (p.y >= pmin.y - EPS) && (p.z >= pmin.z - EPS);
+  bool b = (p.x <= pmax.x + EPS) && (p.y <= pmax.y + EPS) && (p.z <= pmax.z + EPS);
+  return a && b;
+  ;
 }
 
 // Box
@@ -267,6 +260,79 @@ float findIntersectionWithBox(
   // pmin and pmax represent two bounding points of the box
   // pmin stores [xmin, ymin, zmin] and pmax stores [xmax, ymax, zmax]
   // ----------- Our reference solution uses 44 lines of code.
+
+  //normals and distances for each side (normals can just be *-1 for the opposite face)
+  vec3 n1 = vec3(1, 0, 0);
+  vec3 n2 = vec3(0, 1, 0);
+  vec3 n3 = vec3(0, 0, 1);
+  float d1 = pmax.x;
+  float d2 = pmin.x;
+  float d3 = pmax.y;
+  float d4 = pmin.y;
+  float d5 = pmax.z;
+  float d6 = pmin.z;
+
+  //idea, intersect both opposite sides, if i get a hit, check that i didn't get one on the opposite side first then return else, just check the opposite side
+
+  // for the first two opposite faces
+  Intersection side_a, side_b;
+  float a = findIntersectionWithPlane(ray, n1, d1, side_a);
+  float b = findIntersectionWithPlane(ray, -n1, d2, side_b);
+  bool p = inBox(side_a.position, pmin, pmax);
+  bool q = inBox(side_b.position, pmin, pmax);
+  if(p && (a < INFINITY) && (a > 0.0)) {
+    if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
+      out_intersect = side_b;
+      return b;
+    }
+    out_intersect = side_a;
+    return a;
+  } else {
+    if(q && (b < INFINITY) && (b > 0.0)) {
+      out_intersect = side_b;
+      return b;
+    }
+  }
+  // for the next two opposite faces
+
+  a = findIntersectionWithPlane(ray, n2, d3, side_a);
+  b = findIntersectionWithPlane(ray, -n2, d4, side_b);
+  p = inBox(side_a.position, pmin, pmax);
+  q = inBox(side_b.position, pmin, pmax);
+  if(p && (a < INFINITY) && (a > 0.0)) {
+    if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
+      out_intersect = side_b;
+      return b;
+    }
+    out_intersect = side_a;
+    return a;
+  } else {
+    if(q && (b < INFINITY) && (b > 0.0)) {
+      out_intersect = side_b;
+      return b;
+    }
+  }
+  // for the last two opposite faces
+  //z is flipped for some reason??
+ 
+  a = findIntersectionWithPlane(ray, n3, d6, side_a);
+  b = findIntersectionWithPlane(ray, -n3, d5, side_b);
+  p = inBox(side_a.position, pmin, pmax);
+  q = inBox(side_b.position, pmin, pmax);
+  if(p && (a < INFINITY) && (a > 0.0)) {
+    if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
+      out_intersect = side_b;
+      return b;
+    }
+    out_intersect = side_a;
+    return a;
+  } else {
+    if(q && (b < INFINITY) && (b > 0.0)) {
+      out_intersect = side_b;
+      return b;
+    }
+  }
+
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
@@ -385,7 +451,7 @@ vec3 calculateSpecialDiffuseColor(
     float z = floor(posIntersection.z * 0.20 + EPS);
     float s = x + y + z;
     float m = mod(s, 2.0);
-    if(m < EPS) {
+    if(m <= EPS) {
       mat.color = vec3(0, 0, 0);
     } else {
       mat.color = vec3(1, 1, 1);
@@ -423,10 +489,10 @@ bool pointInShadow(vec3 pos, vec3 lightVec) {
   r.direction = normalize(-lightVec);
   float len = length(lightVec);
   Material m;
-  Intersection i;
-  float P = rayIntersectScene(r, m, i);
-  P = length(i.position-r.origin);
-  return (abs(P - len) >= EPS);
+  Intersection interact;
+  float P = rayIntersectScene(r, m, interact);
+  float dist = length(r.origin - interact.position);
+  return (abs(len - dist) >= EPS && P > 0.0);
   // return false;
   // ----------- STUDENT CODE END ------------
 }
@@ -462,6 +528,7 @@ vec3 getLightContribution(
     // check if point is in shadow with light vector
     if(pointInShadow(posIntersection, lightVector)) {
       return vec3(0.0, 0.0, 0.0);
+      // return vec3(1.0, 0.0, 0.0);
     }
   }
 
@@ -492,12 +559,10 @@ vec3 getLightContribution(
       vec3 phongTerm = vec3(0.0, 0.0, 0.0);
       // ----------- STUDENT CODE BEGIN ------------
       // ----------- Our reference solution uses 4 lines of code.
-      vec3 reflectDir = reflect(lightVector, normalVector);
-      vec3 viewDir = normalize(eyeVector - posIntersection);
-      float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess)* light.intensity;
-      vec3 specular =  (spec * mat.specular) * light.color / attenuation;
-      phongTerm = specular;
-
+      // vec3 reflectDir = reflect(lightVector, normalVector);
+      // vec3 viewDir = normalize(eyeVector - posIntersection);
+      // float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess) * diffuseIntensity;
+      // phongTerm = (spec * mat.specular) * light.color;// / attenuation;
 
       // ----------- STUDENT CODE END ------------
       contribution += phongTerm;
@@ -527,22 +592,15 @@ vec3 calculateColor(
   // numLights (GLSL restriction), and accumulate each light's contribution
   // to the point of intersection in the scene.
   // ----------- STUDENT CODE BEGIN ------------
-  //@enoch
-  // for(int i = 0; i < MAX_LIGHTS; i++) {
-  //   if(i >= numLights) {
-  //     break;
-  //   }
-  //   vec3 lightContrib = getLightContribution(lights[i], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
-  //   outputColor += lightContrib;
-  // }
-
-  for(int ii = 0; ii < MAX_LIGHTS; ii++) {
-    if(ii >= numLights) {
+  // @enoch
+  for(int i = 0; i < MAX_LIGHTS; i++) {
+    if(i >= numLights) {
       break;
     }
-    vec3 contrib = getLightContribution(lights[ii], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
-    outputColor += contrib;
+    vec3 lightContrib = getLightContribution(lights[i], mat, posIntersection, normalVector, eyeVector, phongOnly, diffuseColor);
+    outputColor += lightContrib;
   }
+
   // ----------- Our reference solution uses 9 lines of code.
   // Return diffuseColor by default, so you can see something for now.
   return outputColor;
@@ -570,10 +628,10 @@ vec3 calcReflectionVector(
   vec3 I = direction;
   vec3 N = normalVector;
   float k = 1.0 - eta * eta * (1.0 - dot(N, I) * dot(N, I));
-    if (k < 0.0)
-        return vec3(0.0);
-    else
-        return eta * I - (eta * dot(N, I) + sqrt(k)) * N;
+  if(k < 0.0)
+    return vec3(0.0);
+  else
+    return eta * I - (eta * dot(N, I) + sqrt(k)) * N;
   // return refract(direction, normalVector, eta);
   // Return mirror direction by default, so you can see something for now.
   // return reflect(direction, normalVector);
@@ -611,7 +669,7 @@ vec3 traceRay(Ray ray) {
     Material hitMaterial;
     Intersection intersect;
     float intersectionDistance = rayIntersectScene(ray, hitMaterial, intersect);
-    if((abs(intersectionDistance) < EPS) || (abs(intersectionDistance) >= INFINITY)) {
+    if((abs(intersectionDistance) <= EPS) || (abs(intersectionDistance) >= INFINITY)) {
       return resColor;
     }
 
