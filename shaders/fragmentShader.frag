@@ -358,6 +358,8 @@ float getIntersectOpenCylinder(
   vec3 vrMinusva = vr - theta * va;
   vec3 vdMinusva = vd - phi * va;
   float r2 = rad * rad;
+  vec3 p1 = center + (len) * normalize(axis);
+  vec3 p2 = center;
 
   //quadratic equation
   float a = length(vrMinusva) * length(vrMinusva);
@@ -380,7 +382,9 @@ float getIntersectOpenCylinder(
     intersect.position = P;
     vec3 Q = abs(dot(axis, (P - center))) * normalize(axis) + center;
     intersect.normal = normalize(P - Q);
-    return length(P - center);
+    if((dot(va, (P - p1)) < EPS) && (dot(va, (P - p2)) > EPS)) {
+      return length(P - center);
+    }
 
   }
 
