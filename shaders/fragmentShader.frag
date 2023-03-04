@@ -221,7 +221,7 @@ float findIntersectionWithSphere(
 
   float discrim = b * b - 4.0 * a * c;
 
-  if(discrim <= EPS) {
+  if(discrim < 0.0) {
     return INFINITY;
   } else {
     float t1 = (-b + sqrt(discrim)) / (2.0 * a);
@@ -314,7 +314,7 @@ float findIntersectionWithBox(
   }
   // for the last two opposite faces
   //z is flipped for some reason??
- 
+
   a = findIntersectionWithPlane(ray, n3, d6, side_a);
   b = findIntersectionWithPlane(ray, -n3, d5, side_b);
   p = inBox(side_a.position, pmin, pmax);
@@ -349,6 +349,41 @@ float getIntersectOpenCylinder(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 33 lines of code.
+  //useful vars
+  vec3 vr = ray.direction;
+  vec3 va = axis;
+  vec3 vd = ray.origin - center;
+  float phi = dot(vd, axis);
+  float theta = dot(ray.direction, axis);
+  vec3 vrMinusva = vr - theta * va;
+  vec3 vdMinusva = vd - phi * va;
+  float r2 = rad * rad;
+
+  //quadratic equation
+  float a = length(vrMinusva) * length(vrMinusva);
+  float b = 2.0 * dot(vrMinusva, vdMinusva);
+  float c = length(vdMinusva) * length(vdMinusva) - r2;
+
+  //check discrim
+  float discrim = b * b - 4.0 * a * c;
+
+  if(discrim < 0.0) {
+    return INFINITY;
+  } else {
+    float t1 = (-b + sqrt(discrim)) / (2.0 * a);
+    float t2 = (-b - sqrt(discrim)) / (2.0 * a);
+    float T = min(t1, t2);
+    if(T <= EPS) {
+      return INFINITY;
+    }
+    vec3 P = ray.origin + T * vr;
+    intersect.position = P;
+    vec3 Q = abs(dot(axis, (P - center))) * normalize(axis) + center;
+    intersect.normal = normalize(P - Q);
+    return length(P - center);
+
+  }
+
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
