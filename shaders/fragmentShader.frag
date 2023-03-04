@@ -485,14 +485,14 @@ bool pointInShadow(vec3 pos, vec3 lightVec) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 15 lines of code.
   Ray r;
-  r.origin = pos + lightVec;
-  r.direction = normalize(-lightVec);
+  r.origin = pos;
+  r.direction = normalize(lightVec);
   float len = length(lightVec);
   Material m;
   Intersection interact;
   float P = rayIntersectScene(r, m, interact);
   float dist = length(r.origin - interact.position);
-  return (abs(len - dist) >= EPS && P > 0.0);
+  return (len - dist >= EPS);
   // return false;
   // ----------- STUDENT CODE END ------------
 }
