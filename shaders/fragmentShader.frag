@@ -471,7 +471,7 @@ float getIntersectOpenCone(
   //quadratic equation
   float a = length(vrMinusva) * length(vrMinusva) * cosa * cosa - theta * theta * sina * sina;
   float b = 2.0 * dot(vrMinusva, vdMinusva) * cosa * cosa - theta * phi * sina * sina;
-  float c = length(vdMinusva) * length(vdMinusva) * cosa * cosa - phi * theta * sina * sina;
+  float c = length(vdMinusva) * length(vdMinusva) * cosa * cosa - phi * phi * sina * sina;
 
   //check discrim
   float discrim = b * b - 4.0 * a * c;

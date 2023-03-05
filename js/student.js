@@ -1,8 +1,8 @@
 var Student = {
   // please fill in your name and NetID
   // your NetID is the part of your email before @yale.edu
-  name: "Enoch Omale",
-  netID: "eo329",
+  name: "Enoch Omale, Jared Parr",
+  netID: "eo329, jp2844",
 };
 
 Student.updateHTML = function() {
