@@ -402,6 +402,14 @@ float getIntersectDisc(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 18 lines of code.
+  float dist = dot(center,norm);
+  float d = findIntersectionWithPlane(ray, norm, dist, intersect);
+  if((d >= EPS) && (d < INFINITY)) {
+    float l = length(intersect.position - center);
+    if(l <= rad) {
+      return d;
+    }
+  }
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
