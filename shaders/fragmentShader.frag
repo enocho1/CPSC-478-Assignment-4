@@ -372,12 +372,14 @@ float getIntersectOpenCylinder(
   if(discrim < 0.0) {
     return INFINITY;
   } else {
+    // use result
     float t1 = (-b + sqrt(discrim)) / (2.0 * a);
     float t2 = (-b - sqrt(discrim)) / (2.0 * a);
     float T = min(t1, t2);
     if(T <= EPS) {
       return INFINITY;
     }
+    // check cutoffs
     vec3 P = ray.origin + T * vr;
     intersect.position = P;
     vec3 Q = abs(dot(axis, (P - center))) * normalize(axis) + center;
@@ -402,11 +404,11 @@ float getIntersectDisc(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 18 lines of code.
-  float dist = dot(center,norm);
+  float dist = dot(center, norm);
   float d = findIntersectionWithPlane(ray, norm, dist, intersect);
   if((d >= EPS) && (d < INFINITY)) {
     float l = length(intersect.position - center);
-    if(l <= rad) {
+    if(l <= rad && (abs(dot(norm, (intersect.position - center))) <= EPS)) {
       return d;
     }
   }
@@ -453,6 +455,48 @@ float getIntersectOpenCone(
 ) {
   // ----------- STUDENT CODE BEGIN ------------
   // ----------- Our reference solution uses 45 lines of code.
+  //useful vars
+  vec3 vr = ray.direction;
+  vec3 va = axis;
+  vec3 vd = ray.origin - apex;
+  float phi = dot(vd, axis);
+  float theta = dot(ray.direction, axis);
+  vec3 vrMinusva = vr - theta * va;
+  vec3 vdMinusva = vd - phi * va;
+  float r2 = radius * radius;
+  float sq = sqrt(len*len+r2);
+  float sina = radius/sq;
+  float cosa = len/sq;
+
+  //quadratic equation
+  float a = length(vrMinusva)*length(vrMinusva)*cosa*cosa-theta*theta*sina*sina;
+  float b = 2.0*dot(vrMinusva, vdMinusva)*cosa*cosa-theta*phi*sina*sina;
+  float c = length(vdMinusva)*length(vdMinusva)*cosa*cosa-phi*theta*sina*sina;
+
+  //check discrim
+  float discrim = b * b - 4.0 * a * c;
+
+  if(discrim < 0.0) {
+    return INFINITY;
+  } else {
+    // use result
+    float t1 = (-b + sqrt(discrim)) / (2.0 * a);
+    float t2 = (-b - sqrt(discrim)) / (2.0 * a);
+    float T = min(t1, t2);
+    if(T <= EPS) {
+      return INFINITY;
+    }
+    // check cutoffs
+    vec3 P = ray.origin + T * vr;
+    intersect.position = P;
+    // vec3 Q = abs(dot(axis, (P - center))) * normalize(axis) + center;
+    // intersect.normal = normalize(P - Q);
+    // if((dot(va, (P - p1)) < EPS) && (dot(va, (P - p2)) > EPS)) {
+    //   return length(P - center);
+    // }
+
+  }
+
   // currently reports no intersection
   return INFINITY;
   // ----------- STUDENT CODE END ------------
