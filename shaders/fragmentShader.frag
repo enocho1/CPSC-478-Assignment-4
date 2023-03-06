@@ -457,21 +457,21 @@ float getIntersectOpenCone(
   // ----------- Our reference solution uses 45 lines of code.
   //useful vars
   vec3 vr = ray.direction;
-  vec3 va = axis;
+  vec3 va = normalize(axis);
   vec3 vd = ray.origin - apex;
-  float phi = dot(vd, axis);
-  float theta = dot(ray.direction, axis);
+  float phi = dot(vd, va);
+  float theta = dot(ray.direction, va);
   vec3 vrMinusva = vr - theta * va;
   vec3 vdMinusva = vd - phi * va;
   float r2 = radius * radius;
-  float sq = sqrt(len * len + r2);
-  float sina = radius / sq;
-  float cosa = len / sq;
+  float quot = sqrt(len * len + r2);
+  float sin2a = r2 / quot;
+  float cos2a = len * len / quot;
 
   //quadratic equation
-  float a = length(vrMinusva) * length(vrMinusva) * cosa * cosa - theta * theta * sina * sina;
-  float b = 2.0 * dot(vrMinusva, vdMinusva) * cosa * cosa - theta * phi * sina * sina;
-  float c = length(vdMinusva) * length(vdMinusva) * cosa * cosa - phi * phi * sina * sina;
+  float a = dot(vrMinusva, vrMinusva) * cos2a - theta * theta * sin2a;
+  float b = 2.0 * (dot(vrMinusva, vdMinusva) * cos2a - theta * phi * sin2a);
+  float c = dot(vdMinusva, vdMinusva) * cos2a - phi * phi * sin2a;
 
   //check discrim
   float discrim = b * b - 4.0 * a * c;
@@ -491,11 +491,11 @@ float getIntersectOpenCone(
     intersect.position = P;
     vec3 C = apex + normalize(va) * len; //center (at the bottom of the cone)
     vec3 ctop = P - C; // c to P, center to the point we've landed on
-    vec3 D = apex - P;
-    vec3 W = D * (dot(ctop, normalize(D)));
-    intersect.normal = -normalize(ctop - W);
+    vec3 D = normalize(apex - P);
+    vec3 W = D * (dot(ctop, D)) / length(D);
+    intersect.normal = normalize(ctop - W);
     if((dot(va, -D) >= EPS) && (dot(va, ctop) < EPS)) {
-      return length(P-ray.origin);
+      return length(P - ray.origin);
     }
 
   }
