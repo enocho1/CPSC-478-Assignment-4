@@ -246,7 +246,6 @@ bool inBox(vec3 p, vec3 pmin, vec3 pmax) {
   bool a = (p.x >= pmin.x - EPS) && (p.y >= pmin.y - EPS) && (p.z >= pmin.z - EPS);
   bool b = (p.x <= pmax.x + EPS) && (p.y <= pmax.y + EPS) && (p.z <= pmax.z + EPS);
   return a && b;
-  ;
 }
 
 // Box
@@ -540,15 +539,16 @@ vec3 calculateSpecialDiffuseColor(
   // ----------- STUDENT CODE BEGIN ------------
   if(mat.special == CHECKERBOARD) {
     // ----------- Our reference solution uses 7 lines of code.
-    float x = floor(posIntersection.x * 0.20 + EPS);
-    float y = floor(posIntersection.y * 0.20 + EPS);
-    float z = floor(posIntersection.z * 0.20 + EPS);
+    float x = floor(posIntersection.x * 0.10 + EPS);
+    float y = floor(posIntersection.y * 0.10 + EPS);
+    float z = floor(posIntersection.z * 0.10 + EPS);
     float s = x + y + z;
     float m = mod(s, 2.0);
     if(m <= EPS) {
-      mat.color = vec3(0, 0, 0);
+      // mat.color *= vec3(0, 0, 0);
+      mat.color *=  1.0;
     } else {
-      mat.color = vec3(1, 1, 1);
+      mat.color *= 0.5;
     }
 
   } else if(mat.special == MYSPECIAL) {
@@ -653,10 +653,10 @@ vec3 getLightContribution(
       vec3 phongTerm = vec3(0.0, 0.0, 0.0);
       // ----------- STUDENT CODE BEGIN ------------
       // ----------- Our reference solution uses 4 lines of code.
-      // vec3 reflectDir = reflect(lightVector, normalVector);
-      // vec3 viewDir = normalize(eyeVector - posIntersection);
-      // float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess) * diffuseIntensity;
-      // phongTerm = (spec * mat.specular) * light.color;// / attenuation;
+      vec3 reflectDir = reflect(normalize(-lightVector), normalVector);
+      vec3 viewDir = normalize(eyeVector - posIntersection);
+      float spec = pow(max(dot(viewDir, reflectDir), 0.0), mat.shininess);
+      phongTerm = (spec * mat.specular) * light.color;
 
       // ----------- STUDENT CODE END ------------
       contribution += phongTerm;
@@ -799,7 +799,7 @@ vec3 traceRay(Ray ray) {
 
     // If a material is neither reflective nor refractive...
     // (1) Scale the output color by the current weight and add it into
-    //     the accumulated color.  
+    //     the accumulated color.
     // (2) Then break the for loop (i.e. do not trace the ray any further).
     // ----------- STUDENT CODE BEGIN ------------
     // ----------- Our reference solution uses 4 lines of code.
