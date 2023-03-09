@@ -1,10 +1,56 @@
 {"camera":[0.18, -0.22, 0.1],
  "objects":[
         {
+            "comment": "// the back of the cornell box",
+            "type": "plane",
+            "normal": [0, 0, 1],
+            "dist": 200,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
+            }
+        },
+        {
+            "comment": "// the front of the cornell box",
+            "type": "plane",
+            "normal": [0, 0, -1],
+            "dist": 200,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
+            }
+        },
+        {
+            "comment": "// the right of the cornell box",
+            "type": "plane",
+            "normal": [1, 0, 0],
+            "dist": 200,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
+            }
+        },
+        {
+            "comment": "// the left of the cornell box",
+            "type": "plane",
+            "normal": [-1, 0, 0],
+            "dist": 200,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
+            }
+        },
+        {
+            "comment": "// the top of the cornell box",
+            "type": "plane",
+            "normal": [0, 1, 0],
+            "dist": 200,
+            "material": {
+                "color": [0.0, 0.0, 0.0]
+            }
+        },
+
+        {
             "comment": "// the bottom of the cornell box",
             "type": "plane",
             "normal": [0, -1, 0],
-            "dist": 15,
+            "dist": 30,
             "material": {
                 "type": "PHONGMATERIAL",
                 "shininess": 500,
@@ -19,7 +65,7 @@
             "scale": 8,
             "offset":[-15, -3, 5],
             "material": {
-               
+
                "type": "PHONGMATERIAL",
                "color": [0.6, 0.25, 0.55],
                "shininess": 1000,
@@ -52,7 +98,7 @@
             "intensity": 40,
             "attenuate": 1
         }
-        
-        
+
+
     ]
 }

@@ -172,36 +172,52 @@ float findIntersectionWithTriangle(
   vec3 t3,
   out Intersection intersect
 ) {
-  // ----------- STUDENT CODE BEGIN ------------
-  // ----------- Our reference solution uses 28 lines of code.
-  //get normal + distance and treat like a plane @enoch
-  // vec3 edge1 = t2-t1;
-  // vec3 edge2 = t3-t1;
-  // vec3 pVec = cross(ray.direction, edge2);
-  // float det = dot(pVec, edge1);
-  // if(det<EPS){
-  //   return INFINITY;
-  // }
-
   vec3 normal = normalize(cross(t2 - t1, t3 - t1));
-
-  vec3 triangleCenter = t1 + t2 + t3;
-  triangleCenter /= 3.0;
   float distance = dot(t1, normal);
   Intersection initialIntersection;
   float d = findIntersectionWithPlane(ray, normal, distance, initialIntersection);
-  if(d < INFINITY) {
-//check within triangle
-    if((inTriSide(t1, t2, intersect.position, ray.origin)) && (inTriSide(t2, t3, intersect.position, ray.origin)) && (inTriSide(t3, t1, intersect.position, ray.origin))) {
-      intersect.normal = initialIntersection.normal;
-      intersect.position = initialIntersection.position;
-      return d;
-    }
+  if (d >= INFINITY) {
+    return INFINITY;
   }
 
-  // currently reports no intersection
+  vec3 v0 = t1;
+  vec3 v1 = t2;
+  vec3 v2 = t3;
+  vec3 v = initialIntersection.position;
+
+  // Get the edges of the triangle
+  vec3 d0 = v1 - v0;
+  vec3 d1 = v2 - v0;
+  vec3 delta = v - v0;
+
+  // Squared distance between a point and a triangle is
+  // F = a00t0^2 + 2a01t0t1 + a11t1^2 - 2b0t0 - 2b1t1 + c
+
+  // Build the coefficients and find the minimum of the gradient of F
+  float a00 = dot(d0, d0);
+  float a01 = dot(d0, d1);
+  float a11 = dot(d1, d1);
+
+  // Get barycentric coordinates
+  float b0 = dot(d0, delta);
+  float b1 = dot(d1, delta);
+
+  // Grad F
+  float n0 = a11 * b0 - a01 * b1;
+  float n1 = a00 * b1 - a01 * b0;
+  float det = max(a00 * a11 - a01 * a01, 0.);
+  if (det < EPS) { return INFINITY; }
+
+  if (n0 + n1 <= det) {
+    if (n0 >= 0.0) {
+      if (n1 >= 0.0) {
+        intersect.normal = initialIntersection.normal;
+        intersect.position = initialIntersection.position;
+        return d;
+      }
+    }
+  }
   return INFINITY;
-  // ----------- STUDENT CODE END ------------
 }
 
 // Sphere
@@ -622,7 +638,6 @@ vec3 getLightContribution(
     // check if point is in shadow with light vector
     if(pointInShadow(posIntersection, lightVector)) {
       return vec3(0.0, 0.0, 0.0);
-      // return vec3(1.0, 0.0, 0.0);
     }
   }
 
