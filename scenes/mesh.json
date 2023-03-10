@@ -4,7 +4,7 @@
             "comment": "// the back of the cornell box",
             "type": "plane",
             "normal": [0, 0, 1],
-            "dist": 200,
+            "dist": 2000,
             "material": {
                 "color": [0.0, 0.0, 0.0]
             }
@@ -13,7 +13,7 @@
             "comment": "// the front of the cornell box",
             "type": "plane",
             "normal": [0, 0, -1],
-            "dist": 200,
+            "dist": 2000,
             "material": {
                 "color": [0.0, 0.0, 0.0]
             }
@@ -22,7 +22,7 @@
             "comment": "// the right of the cornell box",
             "type": "plane",
             "normal": [1, 0, 0],
-            "dist": 200,
+            "dist": 2000,
             "material": {
                 "color": [0.0, 0.0, 0.0]
             }
@@ -31,7 +31,7 @@
             "comment": "// the left of the cornell box",
             "type": "plane",
             "normal": [-1, 0, 0],
-            "dist": 200,
+            "dist": 2000,
             "material": {
                 "color": [0.0, 0.0, 0.0]
             }
@@ -40,7 +40,7 @@
             "comment": "// the top of the cornell box",
             "type": "plane",
             "normal": [0, 1, 0],
-            "dist": 200,
+            "dist": 2000,
             "material": {
                 "color": [0.0, 0.0, 0.0]
             }
