@@ -734,16 +734,13 @@ vec3 calcReflectionVector(
   // ----------- STUDENT CODE BEGIN ------------
   float eta = (isInsideObj) ? 1.0 / material.refractionRatio : material.refractionRatio;
   // ----------- Our reference solution uses 5 lines of code.
-  vec3 I = direction;
-  vec3 N = normalVector;
-  float k = 1.0 - eta * eta * (1.0 - dot(N, I) * dot(N, I));
-  if(k < 0.0)
+  float k = 1.0 - eta * eta * (1.0 - dot(normalVector, direction) * dot(normalVector, direction));
+  if (k < 0.0) {
     return vec3(0.0);
-  else
-    return eta * I - (eta * dot(N, I) + sqrt(k)) * N;
-  // return refract(direction, normalVector, eta);
-  // Return mirror direction by default, so you can see something for now.
-  // return reflect(direction, normalVector);
+  }
+  else {
+    return eta * direction - (eta * dot(normalVector, direction) + sqrt(k)) * normalVector;
+  }
   // ----------- STUDENT CODE END ------------
 }
 
