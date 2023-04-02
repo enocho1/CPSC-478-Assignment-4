@@ -10,7 +10,7 @@ precision mediump int;
 #define SOFT_SHADOWS 1
 
 // define number of soft shadow samples to take
-#define SOFT_SAMPLING 3
+#define SOFT_SAMPLING 4
 
 // define constant parameters
 // EPS is for the precision issue
@@ -621,16 +621,15 @@ bool pointInShadow(vec3 pos, vec3 lightVec) {
 float softShadowRatio(vec3 pos, vec3 lightVec) {
   // ----------- STUDENT CODE BEGIN ------------
   float total_num = 0.0;
-  const int sample_rate = 10;
-  for(int i = 0; i < sample_rate; i++) {
-    vec2 seed_vec1 = pos.xz;
-    vec2 seed_vec2 = pos.xy;
-    vec2 seed_vec3 = pos.yz;
+  vec2 seed_vec1 = pos.xz;
+  vec2 seed_vec2 = pos.xy;
+  vec2 seed_vec3 = pos.yz;
+  for(int i = 0; i < SOFT_SAMPLING; i++) {
     float a, b, c;
     a = randomFloat(seed_vec1);
     b = randomFloat(seed_vec2);
     c = randomFloat(seed_vec2);
-    vec3 shift_vec = lightVec+vec3(a,b,c);
+    vec3 shift_vec = lightVec + vec3(a, b, c);
     Ray r;
     r.origin = pos;
     r.direction = normalize(shift_vec);
@@ -646,7 +645,7 @@ float softShadowRatio(vec3 pos, vec3 lightVec) {
     seed_vec2 += seed_vec3;
     seed_vec1 += seed_vec3;
   }
-  return total_num / float(sample_rate);
+  return total_num / float(SOFT_SAMPLING);
 
   // ----------- Our reference solution uses 19 lines of code.
 
