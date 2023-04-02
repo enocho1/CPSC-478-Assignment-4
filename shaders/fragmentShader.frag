@@ -7,7 +7,7 @@ precision mediump float;
 precision mediump int;
 
 // flag for using soft shadows (set to 1 only when using soft shadows)
-#define SOFT_SHADOWS 0
+#define SOFT_SHADOWS 1
 
 // define number of soft shadow samples to take
 #define SOFT_SAMPLING 3
@@ -117,6 +117,11 @@ bool chooseCloserIntersection(
 
 // put any general convenience functions you want up here
 // ----------- STUDENT CODE BEGIN ------------
+
+// generate a random float
+float randomFloat(vec2 co) {
+  return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 // ----------- Our reference solution uses 118 lines of code.
 // ----------- STUDENT CODE END ------------
 
@@ -176,7 +181,7 @@ float findIntersectionWithTriangle(
   float distance = dot(t1, normal);
   Intersection initialIntersection;
   float d = findIntersectionWithPlane(ray, normal, distance, initialIntersection);
-  if (d >= INFINITY) {
+  if(d >= INFINITY) {
     return INFINITY;
   }
 
@@ -206,11 +211,13 @@ float findIntersectionWithTriangle(
   float n0 = a11 * b0 - a01 * b1;
   float n1 = a00 * b1 - a01 * b0;
   float det = max(a00 * a11 - a01 * a01, 0.);
-  if (det < EPS) { return INFINITY; }
+  if(det < EPS) {
+    return INFINITY;
+  }
 
-  if (n0 + n1 <= det) {
-    if (n0 >= 0.0) {
-      if (n1 >= 0.0) {
+  if(n0 + n1 <= det) {
+    if(n0 >= 0.0) {
+      if(n1 >= 0.0) {
         intersect.normal = initialIntersection.normal;
         intersect.position = initialIntersection.position;
         return d;
@@ -562,7 +569,7 @@ vec3 calculateSpecialDiffuseColor(
     float m = mod(s, 2.0);
     if(m <= EPS) {
       // mat.color *= vec3(0, 0, 0);
-      mat.color *=  1.0;
+      mat.color *= 1.0;
     } else {
       mat.color *= 0.5;
     }
@@ -613,8 +620,37 @@ bool pointInShadow(vec3 pos, vec3 lightVec) {
 // normalized, so its length is the distance from the position to the light
 float softShadowRatio(vec3 pos, vec3 lightVec) {
   // ----------- STUDENT CODE BEGIN ------------
+  float total_num = 0.0;
+  const int sample_rate = 10;
+  for(int i = 0; i < sample_rate; i++) {
+    vec2 seed_vec1 = pos.xz;
+    vec2 seed_vec2 = pos.xy;
+    vec2 seed_vec3 = pos.yz;
+    float a, b, c;
+    a = randomFloat(seed_vec1);
+    b = randomFloat(seed_vec2);
+    c = randomFloat(seed_vec2);
+    vec3 shift_vec = lightVec+vec3(a,b,c);
+    Ray r;
+    r.origin = pos;
+    r.direction = normalize(shift_vec);
+    float len = length(shift_vec);
+    Material m;
+    Intersection interact;
+    float P = rayIntersectScene(r, m, interact);
+    float dist = length(r.origin - interact.position);
+    if(len - dist < EPS) {
+      total_num += 1.0;
+    }
+    seed_vec1 += seed_vec2;
+    seed_vec2 += seed_vec3;
+    seed_vec1 += seed_vec3;
+  }
+  return total_num / float(sample_rate);
+
   // ----------- Our reference solution uses 19 lines of code.
-  return 0.0;
+
+  return 1.0;
   // ----------- STUDENT CODE END ------------
 }
 
@@ -735,10 +771,9 @@ vec3 calcReflectionVector(
   float eta = (isInsideObj) ? 1.0 / material.refractionRatio : material.refractionRatio;
   // ----------- Our reference solution uses 5 lines of code.
   float k = 1.0 - eta * eta * (1.0 - dot(normalVector, direction) * dot(normalVector, direction));
-  if (k < 0.0) {
+  if(k < 0.0) {
     return vec3(0.0);
-  }
-  else {
+  } else {
     return eta * direction - (eta * dot(normalVector, direction) + sqrt(k)) * normalVector;
   }
   // ----------- STUDENT CODE END ------------
