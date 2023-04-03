@@ -554,6 +554,51 @@ float findIntersectionWithCone(
   return best_dist;
 }
 
+float cubicInterpolation(float a0, float a1, float w) {
+  if (0.0 > w) {
+    return a0;
+  }
+
+  if (1.0 < w) {
+    return a1;
+  }
+
+  return a0 + w * w * (3.0 - 2.0 * w) * (a1 - a0);
+}
+
+float randomFloatFromSeed(float seed) {
+  return fract(sin(seed) * 43758.5453123);
+}
+
+float lerp(float a, float b, float t) {
+  return mix(a, b, t);
+}
+
+// Perlin noise function
+float perlin(vec2 p) {
+    // Integer coordinates of the grid cell containing the input point
+    vec2 i = floor(p);
+
+    // Fractional coordinates within the grid cell
+    vec2 f = fract(p);
+
+    // Smoothstep function applied to the fractional coordinates
+    vec2 u = smoothstep(0.0, 1.0, f);
+
+    // Noise values at the corners of the grid cell
+    float a = randomFloatFromSeed(dot(i, vec2(127.1, 311.7)));
+    float b = randomFloatFromSeed(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7)));
+    float c = randomFloatFromSeed(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7)));
+    float d = randomFloatFromSeed(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7)));
+
+    // Bilinear interpolation of noise values
+    float k0 = lerp(a, b, u.x);
+    float k1 = lerp(c, d, u.x);
+    float k2 = lerp(k0, k1, u.y);
+
+    return k2;
+}
+
 vec3 calculateSpecialDiffuseColor(
   Material mat,
   vec3 posIntersection,
@@ -575,7 +620,9 @@ vec3 calculateSpecialDiffuseColor(
     }
 
   } else if(mat.special == MYSPECIAL) {
-    // ----------- Our reference solution uses 5 lines of code.
+    float noise = perlin(posIntersection.xy);
+    float intensity = mix(0.5, 1.0, noise);
+    mat.color *= intensity;
   }
 
   // If not a special material, just return material color.

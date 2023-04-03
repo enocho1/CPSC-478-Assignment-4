@@ -100,10 +100,13 @@
             <p>
                 <hr>
             <p>
-               We first use the intersect plane method to compute a collision with a plane that lies parallel to the triangle we're testing.
-               To do so, you need to calculate the normal of the triangle, which you can do by computing hte cross product of two of its edges
-               (to get the normal) and then working out how far away from the origin it lies. If the plane intersection test passes, We work out the
-               barycentric coordinates of the intersection point and make sure it's inside the triangle.  
+                We first use the intersect plane method to compute a collision with a plane that lies parallel to the
+                triangle we're testing.
+                To do so, you need to calculate the normal of the triangle, which you can do by computing hte cross
+                product of two of its edges
+                (to get the normal) and then working out how far away from the origin it lies. If the plane intersection
+                test passes, We work out the
+                barycentric coordinates of the intersection point and make sure it's inside the triangle.
 
             <p>
                 <hr>
@@ -114,8 +117,10 @@
             <p>
                 To solve the sphere intersection we utilized the quadratic formula to compute the location a ray
                 intersected with the collision object. We accomplished this by constructing each of the variables for
-                the quadratic and solving for the positive determinant case. This gave us two options to pick from since the quadratic
-                formula can give multiple solutions. We always chose the closest option (ignoring a negative value for our parameter). The normal is parallel
+                the quadratic and solving for the positive determinant case. This gave us two options to pick from since
+                the quadratic
+                formula can give multiple solutions. We always chose the closest option (ignoring a negative value for
+                our parameter). The normal is parallel
                 to the intersection point - the center of the sphere.
 
             <p>
@@ -135,9 +140,12 @@
             <p>
                 <hr>
             <p>
-                The same approach as with the sphere, we craft a similar quadratic equation and solve for the two values for the tube part of the cylinder.
-                We then make sure that the ray doesn't go too high or too low. The normal is given by P - Pc where P is the intercet point and 
-                Pc is the closest point to the center of the tube's axis. Then we do another test for the disks (plain and then, inside-circle test) and pick the nearest of the intersections.
+                The same approach as with the sphere, we craft a similar quadratic equation and solve for the two values
+                for the tube part of the cylinder.
+                We then make sure that the ray doesn't go too high or too low. The normal is given by P - Pc where P is
+                the intercet point and
+                Pc is the closest point to the center of the tube's axis. Then we do another test for the disks (plain
+                and then, inside-circle test) and pick the nearest of the intersections.
 
             <p>
                 <hr>
@@ -146,10 +154,12 @@
             <p>
                 <hr>
             <p>
-                Usual quadratic approach for the main cone, but the cutoff is slightly different to the cyllinder since the equation solves for a double infinite cone.
-                The normal is calculated by working out a projection of the center of the base onto the side. We also reuse the disk intersection for the base.
+                Usual quadratic approach for the main cone, but the cutoff is slightly different to the cyllinder since
+                the equation solves for a double infinite cone.
+                The normal is calculated by working out a projection of the center of the base onto the side. We also
+                reuse the disk intersection for the base.
                 Finally we return the closest positive result.
-                
+
 
             <p>
                 <hr>
@@ -224,7 +234,11 @@
             <p>
                 <hr>
             <p>
-                Not implemented.
+                We implemented the special material as a standard perlin noise function. We computed the coordinates of
+                the grid cell for the input point. This was loosely done by just smashing the values down to integer
+                values and then computing the interpolation between the point gradients. We then computed the
+                interpolation weights for the point and then used the dot product to compute the final value. We then
+                scaled the value to be between 0 and 1 and then used the value to scale the color of the material.
 
             <p>
                 <hr>
