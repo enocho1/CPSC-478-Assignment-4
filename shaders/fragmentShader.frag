@@ -256,7 +256,7 @@ float findIntersectionWithSphere(
     vec3 P = ray.origin + T * V;
     intersect.position = P;
     intersect.normal = normalize(P - center);
-    return length(P - center);
+    return length(P - ray.origin);
 
   }
 
