@@ -76,7 +76,7 @@ def randomColour():
 
 
 def randomPosition():
-    return [randomInRange(-40, 40), randomInRange(-40, 40), randomInRange(-40, 40)]
+    return [randomInRange(-40, 20), randomInRange(-40, 20), randomInRange(-40, 20)]
 
 
 def randomMaterial():
