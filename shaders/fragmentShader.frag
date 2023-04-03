@@ -297,65 +297,84 @@ float findIntersectionWithBox(
   //idea, intersect both opposite sides, if i get a hit, check that i didn't get one on the opposite side first then return else, just check the opposite side
 
   // for the first two opposite faces
-  Intersection side_a, side_b;
+  Intersection side_a, side_b, side_c, side_d, side_e, side_f;
+  float out_d = INFINITY;
   float a = findIntersectionWithPlane(ray, n1, d1, side_a);
   float b = findIntersectionWithPlane(ray, -n1, d2, side_b);
   bool p = inBox(side_a.position, pmin, pmax);
   bool q = inBox(side_b.position, pmin, pmax);
+  bool got_one = false;
   if(p && (a < INFINITY) && (a > 0.0)) {
     if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
       out_intersect = side_b;
-      return b;
+      out_d = b;
+      got_one = true;
+    } else {
+      out_intersect = side_a;
+      out_d = a;
+      got_one = true;
     }
-    out_intersect = side_a;
-    return a;
+
   } else {
     if(q && (b < INFINITY) && (b > 0.0)) {
       out_intersect = side_b;
-      return b;
+      got_one = true;
+      out_d = b;
+
     }
   }
   // for the next two opposite faces
 
-  a = findIntersectionWithPlane(ray, n2, d3, side_a);
-  b = findIntersectionWithPlane(ray, -n2, d4, side_b);
-  p = inBox(side_a.position, pmin, pmax);
-  q = inBox(side_b.position, pmin, pmax);
-  if(p && (a < INFINITY) && (a > 0.0)) {
-    if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
-      out_intersect = side_b;
-      return b;
+  float c = findIntersectionWithPlane(ray, n2, d3, side_c);
+  float d = findIntersectionWithPlane(ray, -n2, d4, side_d);
+  p = inBox(side_c.position, pmin, pmax);
+  q = inBox(side_d.position, pmin, pmax);
+  if(p && (c < INFINITY) && (c > 0.0) && (c < out_d)) {
+    if(q && (d < INFINITY) && (d > 0.0) && (d < out_d) && (d < c)) {
+      out_intersect = side_d;
+      got_one = true;
+      out_d = d;
+    } else {
+      out_intersect = side_c;
+      got_one = true;
+      out_d = c;
     }
-    out_intersect = side_a;
-    return a;
   } else {
-    if(q && (b < INFINITY) && (b > 0.0)) {
-      out_intersect = side_b;
-      return b;
+    if(q && (d < INFINITY) && (d > 0.0) && (d < out_d)) {
+      out_intersect = side_d;
+      got_one = true;
+      out_d = d;
     }
   }
   // for the last two opposite faces
   //z is flipped for some reason??
 
-  a = findIntersectionWithPlane(ray, n3, d6, side_a);
-  b = findIntersectionWithPlane(ray, -n3, d5, side_b);
-  p = inBox(side_a.position, pmin, pmax);
-  q = inBox(side_b.position, pmin, pmax);
-  if(p && (a < INFINITY) && (a > 0.0)) {
-    if(q && (b < INFINITY) && (b > 0.0) && (b < a)) {
-      out_intersect = side_b;
-      return b;
+  float e = findIntersectionWithPlane(ray, n3, d6, side_e);
+  float f = findIntersectionWithPlane(ray, -n3, d5, side_f);
+  p = inBox(side_e.position, pmin, pmax);
+  q = inBox(side_f.position, pmin, pmax);
+  if(p && (e < INFINITY) && (e > 0.0) && (e < out_d)) {
+    if(q && (f < INFINITY) && (f > 0.0) && (f < out_d) && (f < e)) {
+      out_intersect = side_f;
+      got_one = true;
+      out_d = f;
+    } else {
+      out_intersect = side_e;
+      got_one = true;
+      out_d = e;
     }
-    out_intersect = side_a;
-    return a;
   } else {
-    if(q && (b < INFINITY) && (b > 0.0)) {
-      out_intersect = side_b;
-      return b;
+    if(q && (f < INFINITY) && (f > 0.0) && (f < out_d) && (f < e)) {
+      out_intersect = side_f;
+      got_one = true;
+      out_d = f;
     }
   }
 
   // currently reports no intersection
+  if(got_one) {
+    return out_d;
+  }
   return INFINITY;
   // ----------- STUDENT CODE END ------------
 }
@@ -555,11 +574,11 @@ float findIntersectionWithCone(
 }
 
 float cubicInterpolation(float a0, float a1, float w) {
-  if (0.0 > w) {
+  if(0.0 > w) {
     return a0;
   }
 
-  if (1.0 < w) {
+  if(1.0 < w) {
     return a1;
   }
 
@@ -577,26 +596,26 @@ float lerp(float a, float b, float t) {
 // Perlin noise function
 float perlin(vec2 p) {
     // Integer coordinates of the grid cell containing the input point
-    vec2 i = floor(p);
+  vec2 i = floor(p);
 
     // Fractional coordinates within the grid cell
-    vec2 f = fract(p);
+  vec2 f = fract(p);
 
     // Smoothstep function applied to the fractional coordinates
-    vec2 u = smoothstep(0.0, 1.0, f);
+  vec2 u = smoothstep(0.0, 1.0, f);
 
     // Noise values at the corners of the grid cell
-    float a = randomFloatFromSeed(dot(i, vec2(127.1, 311.7)));
-    float b = randomFloatFromSeed(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7)));
-    float c = randomFloatFromSeed(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7)));
-    float d = randomFloatFromSeed(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7)));
+  float a = randomFloatFromSeed(dot(i, vec2(127.1, 311.7)));
+  float b = randomFloatFromSeed(dot(i + vec2(1.0, 0.0), vec2(127.1, 311.7)));
+  float c = randomFloatFromSeed(dot(i + vec2(0.0, 1.0), vec2(127.1, 311.7)));
+  float d = randomFloatFromSeed(dot(i + vec2(1.0, 1.0), vec2(127.1, 311.7)));
 
     // Bilinear interpolation of noise values
-    float k0 = lerp(a, b, u.x);
-    float k1 = lerp(c, d, u.x);
-    float k2 = lerp(k0, k1, u.y);
+  float k0 = lerp(a, b, u.x);
+  float k1 = lerp(c, d, u.x);
+  float k2 = lerp(k0, k1, u.y);
 
-    return k2;
+  return k2;
 }
 
 vec3 calculateSpecialDiffuseColor(
